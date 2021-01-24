@@ -196,21 +196,7 @@ function displayTotalQty(){
 
     if(localStorage.length > 0){
 
-        for(key in localStorage){
-
-            if(!localStorage.hasOwnProperty(key)){
-    
-                continue;
-    
-            };
-    
-            let value = JSON.parse(localStorage.getItem(key));
-    
-            qty += parseInt(value[2]);
-    
-            totalQty.innerHTML = qty;
-    
-        };
+        
 
     }else{
 
