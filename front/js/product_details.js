@@ -14,6 +14,14 @@ let button = document.getElementById("button");
 
 let j = 0;
 
+let panier = [];
+
+if(localStorage.length == 0){
+
+    localStorage.setItem("panier", JSON.stringify(panier));
+
+};
+
 fetch("http://localhost:3000/api/teddies/" + id).then(response => response.json())
 .then(function(response){
     displayOneTeddy(response);
@@ -61,55 +69,61 @@ function getTeddyColors (teddy){
 
 button.addEventListener("click", function(event){
 
-    let panier = JSON.parse(localStorage.getItem("panier"));
+    let teddy =[];
 
-    let length = panier.length;
-
-    if(length > 0){
+    if(localStorage.length > 0){
 
         let panier = JSON.parse(localStorage.getItem("panier"));
 
-        for(i in panier){
+        if(panier.length == 0){
 
-            let teddy = panier[i];
+            teddy = [button.value, select.value, "1"];
 
-            let id = teddy[0];
-            console.log("id =" + id);
+            panier.push(teddy);
 
-            let opt = teddy[1];
-            console.log("opt =" + opt);
+            console.log("PANIER : " + localStorage.getItem("panier"));
 
-            let qty = teddy[2];
-            console.log("qty =" + qty);
+        }else{
 
-            if(id == button.value && opt == select.value){
+            for(i in panier){
 
-                parseInt(qty);
+                let item = panier[i];
 
-                qty++;
+                let id = item[0];
 
-                console.log("newQty =" + qty);
+                let opt = item[1];
 
-                localStorage.setItem("panier", JSON.stringify(panier));
+                let qty = item[2];
 
-                console.log(localStorage.getItem("panier"));
+                if(id == button.value && opt == select.value){
 
-            };
+                    parseInt(qty);
+
+                    qty++;
+
+                    item[2] = JSON.stringify(qty);
+
+                    teddy = [id, opt, qty];
+
+                    console.log("PANIER : " + localStorage.getItem("panier"));
+
+                    break;
+
+                }
+
+            }
 
         }
-
-    }else{
-
-        let teddy = [button.value, select.value, "1"];
-
-        let panier = JSON.parse(localStorage.getItem("panier"));
 
         panier.push(teddy);
 
         localStorage.setItem("panier", JSON.stringify(panier));
-        
-        displayTotalQty();
-    }
+
+    }else {
+
+        alert("Erreur dans le localStorage");
+
+    };
 
 });
 
