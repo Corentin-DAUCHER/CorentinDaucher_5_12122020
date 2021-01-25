@@ -1,10 +1,19 @@
 let clearButton = document.getElementById("clearLocalStorage");
+let k = -1;
 
 const panierContainer = document.getElementById("panierContainer");
 const message = document.getElementById("message");
 const totalPrice = document.getElementById("totalPrice");
 const totalPriceText = document.getElementsByClassName("totalPriceText");
 const shopContainer = document.getElementById("shopContainer");
+
+let panier = [];
+
+if(localStorage.length == 0){
+
+    localStorage.setItem("panier", JSON.stringify(panier));
+
+};
 
 let productList = [];
 
@@ -16,46 +25,50 @@ let totalQty = document.getElementById("totalQty");
 
 if (localStorage.length > 0) {
 
-    for (key in localStorage) {
+    panier = JSON.parse(localStorage.getItem("panier"));
 
-        if(!localStorage.hasOwnProperty(key)){
-            continue;
+    if (panier.length > 0) {
+
+        for(i in panier){
+
+            let item = panier[i];
+
+            let id = item[0];
+            let teddyOption = item[1];
+            let qty = item[2];
+
+            k++;
+
+            parseInt(qty);
+
+            displayCommand(id, teddyOption, qty, k);
+        
+            displayTotalPrice(id, qty);
+
+            displayTotalQty();
+
         }
 
-        let value = JSON.parse(localStorage.getItem(key))
+    }else{
 
-        let id = value[0];
-        let teddyOption = value[1];
-        let qty = value[2];
+        message.innerHTML = "VOTRE PANIER EST VIDE !";
+        message.classList.add("text-center");
 
-        parseInt(qty);
+        for (i = 0; i < 2; i++) {
 
-        displayCommand(id, teddyOption, qty);
-        
-        displayTotalPrice(id, qty);
+            let text = totalPriceText[i];
 
-        displayTotalQty();
+            text.setAttribute("style", "display: none");
+
+        }
+
+        shopContainer.setAttribute("style", "display: none");
 
     };
 
-} else {
+};
 
-    message.innerHTML = "VOTRE PANIER EST VIDE !";
-    message.classList.add("text-center");
-
-    for (i = 0; i < 2; i++) {
-
-        let text = totalPriceText[i];
-
-        text.setAttribute("style", "display: none");
-
-    }
-
-    shopContainer.setAttribute("style", "display: none");
-
-}
-
-function displayCommand(id, teddyOption, qty) {
+function displayCommand(id, teddyOption, qty, k) {
 
     fetch("http://localhost:3000/api/teddies/" + id).then(response => response.json())
         .then(function (response) {
@@ -117,8 +130,7 @@ function displayCommand(id, teddyOption, qty) {
                 let deleteButton = document.createElement("button");
                 deleteButton.classList.add("deleteButton", "btn", "btn-primary", "m-3");
                 deleteButton.innerHTML = "SUPPRIMER";
-                let qtyDefault = 1;
-                deleteButton.value = [teddy._id, teddyOption, qtyDefault];
+                deleteButton.value = k;
                 item.appendChild(deleteButton);
                 productList.push(id);
 
@@ -168,9 +180,13 @@ function deleteButtonListener(button) {
 
     button.addEventListener("click", function (event) {
 
-        let key = button.value;
+        let panier = JSON.parse(localStorage.getItem("panier"));
 
-        localStorage.removeItem(key);
+        let index = button.value;
+
+        panier.splice(index, 1);
+
+        localStorage.setItem("panier", JSON.stringify(panier));
 
         window.location.reload();
 
@@ -231,31 +247,33 @@ clearButton.addEventListener("click", function (event) {
 
 });
 
-if (localStorage.length > 0) {
-
-    for (key in localStorage) {
-
-        if (!localStorage.hasOwnProperty(key)) {
-            continue;
-        };
-
-        console.log(localStorage.getItem(key));
-        console.log(key);
-
-    };
-
-    console.log(localStorage.length);
-    console.log(productList);
-
-};
-
 function displayTotalQty(){
 
     let qty = 0;
 
     if(localStorage.length > 0){
 
-        
+        let panier = JSON.parse(localStorage.getItem("panier"));
+
+        if(panier.length > 0){
+
+            qty = panier.length;
+
+            for(i in panier){
+
+                let item = panier[i];
+
+                let qtyPerItems = item[2];
+
+                parseInt(qty);
+
+                qty += qtyPerItems - 1; 
+
+            }
+
+            totalQty.innerHTML = qty;
+
+        }
 
     }else{
 

@@ -35,6 +35,8 @@ function displayOneTeddy(teddy){
 
     teddyImg.src = teddy.imageUrl;
 
+    teddyImg.style.maxHeight = "400px";
+
     teddyName.innerHTML = teddy.name;
 
     teddyName.value = teddy.name;
@@ -69,7 +71,7 @@ function getTeddyColors (teddy){
 
 button.addEventListener("click", function(event){
 
-    let teddy =[];
+    let j = 0;
 
     if(localStorage.length > 0){
 
@@ -81,43 +83,63 @@ button.addEventListener("click", function(event){
 
             panier.push(teddy);
 
+            localStorage.setItem("panier", JSON.stringify(panier));
+
             console.log("PANIER : " + localStorage.getItem("panier"));
+
+            j = 1;
 
         }else{
 
             for(i in panier){
 
-                let item = panier[i];
-
-                let id = item[0];
-
-                let opt = item[1];
-
-                let qty = item[2];
-
-                if(id == button.value && opt == select.value){
-
-                    parseInt(qty);
-
-                    qty++;
-
-                    item[2] = JSON.stringify(qty);
-
-                    teddy = [id, opt, qty];
-
+                let currentItem = panier[i];
+    
+                let currentId = currentItem[0];
+    
+                let currentOpt = currentItem[1];
+    
+                let currentQty = currentItem[2];
+    
+                if(currentId == button.value && currentOpt == select.value){
+    
+                    parseInt(currentQty);
+    
+                    currentQty++;
+    
+                    let newItemAdded = [currentId, currentOpt, JSON.stringify(currentQty)];
+    
+                    panier.splice(i, 1, newItemAdded);
+    
+                    localStorage.setItem("panier", JSON.stringify(panier));
+    
                     console.log("PANIER : " + localStorage.getItem("panier"));
-
+    
+                    j = 1;
+    
                     break;
-
+    
                 }
-
+    
             }
 
         }
 
-        panier.push(teddy);
+        
 
-        localStorage.setItem("panier", JSON.stringify(panier));
+        if(j == 0){
+
+            teddy = [button.value, select.value, "1"];
+
+            panier.push(teddy);
+
+            localStorage.setItem("panier", JSON.stringify(panier));
+
+            console.log("PANIER : " + localStorage.getItem("panier"));
+
+        }
+
+        displayTotalQty();
 
     }else {
 
@@ -133,7 +155,27 @@ function displayTotalQty(){
 
     if(localStorage.length > 0){
 
-        
+        let panier = JSON.parse(localStorage.getItem("panier"));
+
+        if(panier.length > 0){
+
+            qty = panier.length;
+
+            for(i in panier){
+
+                let item = panier[i];
+
+                let qtyPerItems = item[2];
+
+                parseInt(qty);
+
+                qty += qtyPerItems - 1; 
+
+            }
+
+            totalQty.innerHTML = qty;
+
+        }
 
     }else{
 

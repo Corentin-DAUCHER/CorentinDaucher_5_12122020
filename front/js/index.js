@@ -6,7 +6,11 @@ let totalQty = document.getElementById("totalQty");
 
 let panier = [];
 
-localStorage.setItem("panier", JSON.stringify(panier));
+if(localStorage.length == 0){
+
+    localStorage.setItem("panier", JSON.stringify(panier));
+
+};
 
 fetch("http://localhost:3000/api/teddies").then(response => response.json())
 .then(function(response){
@@ -100,7 +104,27 @@ function displayTotalQty(){
 
     if(localStorage.length > 0){
 
-        
+        let panier = JSON.parse(localStorage.getItem("panier"));
+
+        if(panier.length > 0){
+
+            qty = panier.length;
+
+            for(i in panier){
+
+                let item = panier[i];
+
+                let qtyPerItems = item[2];
+
+                parseInt(qty);
+
+                qty += qtyPerItems - 1; 
+
+            }
+
+            totalQty.innerHTML = qty;
+
+        }
 
     }else{
 

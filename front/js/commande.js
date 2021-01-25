@@ -29,12 +29,18 @@ address.innerHTML = addressText;
 city.innerHTML = cityText;
 email.innerHTML = emailText;
 
+let panier = [];
+
+if(localStorage.length == 0){
+
+    localStorage.setItem("panier", JSON.stringify(panier));
+
+};
+
 fetch("http://localhost:3000/api/teddies").then(response => response.json())
 .then(function(response){
 
     displayCommandItems(response);
-
-    displayTotalPrice();
 
     displayTotalQty();
 
@@ -42,78 +48,78 @@ fetch("http://localhost:3000/api/teddies").then(response => response.json())
 
 function displayCommandItems(teddy){
 
-    for(key in localStorage){
+    if(localStorage.length > 0){
 
-        if(!localStorage.hasOwnProperty(key)){
+        let panier = JSON.parse(localStorage.getItem("panier"));
 
-            continue;
+        if(panier.length > 0){
 
-        };
+            for(i in panier){
 
-        if(key != "firstName" && key != "lastName"  && key != "address" && key != "city" && key != "email"){
+                let item = panier[i];
 
-            let value = JSON.parse(localStorage.getItem(key));
+                let teddyId = item[0];
+                let teddyOption = item[1];
+                let teddyQty = item[2];
 
-            let teddyId = value[0];
-            let teddyOption = value[1];
-            let teddyQty = value[2];
+                fetch("http://localhost:3000/api/teddies/" + teddyId).then(response => response.json())
+                .then(function(teddy){
 
-            console.log(teddyId, teddyOption, teddyQty);
+                    let item = document.createElement("li");
+                    item.classList.add("text-center", "rounded", "p-2", "mt-4", "bg-dark");
+                    productListContainer.appendChild(item);
 
-            fetch("http://localhost:3000/api/teddies/" + teddyId).then(response => response.json())
-            .then(function(teddy){
+                    let teddyImg = document.createElement("img");
+                    teddyImg.classList.add("img-fluid", "pt-2");
+                    teddyImg.style.maxHeight = "200px";
+                    teddyImg.src = teddy.imageUrl;
+                    item.appendChild(teddyImg);
 
-                let item = document.createElement("li");
-                item.classList.add("text-center", "rounded", "p-2", "mt-4", "bg-dark");
-                productListContainer.appendChild(item);
+                    let productText = document.createElement("h2");
+                    productText.classList.add("text-center", "text-primary");
+                    productText.innerHTML = "Produit";
+                    item.appendChild(productText);
 
-                let teddyImg = document.createElement("img");
-                teddyImg.classList.add("img-fluid", "pt-2");
-                teddyImg.style.maxHeight = "200px";
-                teddyImg.src = teddy.imageUrl;
-                item.appendChild(teddyImg);
+                    let teddyName = document.createElement("h2");
+                    teddyName.classList.add("text-center", "text-light");
+                    teddyName.innerHTML = teddy.name;
+                    item.appendChild(teddyName);
 
-                let productText = document.createElement("h2");
-                productText.classList.add("text-center", "text-primary");
-                productText.innerHTML = "Produit";
-                item.appendChild(productText);
+                    let optText = document.createElement("h2");
+                    optText.classList.add("text-center", "text-primary");
+                    optText.innerHTML = "Option";
+                    item.appendChild(optText);
 
-                let teddyName = document.createElement("h2");
-                teddyName.classList.add("text-center", "text-light");
-                teddyName.innerHTML = teddy.name;
-                item.appendChild(teddyName);
+                    let teddyColor = document.createElement("h2");
+                    teddyColor.classList.add("text-center", "text-light");
+                    teddyColor.innerHTML = teddy.colors[teddyOption];
+                    item.appendChild(teddyColor);
 
-                let optText = document.createElement("h2");
-                optText.classList.add("text-center", "text-primary");
-                optText.innerHTML = "Option";
-                item.appendChild(optText);
+                    let qtyText = document.createElement("h2");
+                    qtyText.classList.add("text-center", "text-primary");
+                    qtyText.innerHTML = "Quantité";
+                    item.appendChild(qtyText);
 
-                let teddyColor = document.createElement("h2");
-                teddyColor.classList.add("text-center", "text-light");
-                teddyColor.innerHTML = teddy.colors[teddyOption];
-                item.appendChild(teddyColor);
+                    let qtyStr = document.createElement("h2");
+                    qtyStr.classList.add("text-center", "text-light");
+                    qtyStr.innerHTML = teddyQty;
+                    item.appendChild(qtyStr);
 
-                let qtyText = document.createElement("h2");
-                qtyText.classList.add("text-center", "text-primary");
-                qtyText.innerHTML = "Quantité";
-                item.appendChild(qtyText);
+                    let priceText = document.createElement("h2");
+                    priceText.classList.add("text-center", "text-primary");
+                    priceText.innerHTML = "Prix";
+                    item.appendChild(priceText);
 
-                let qtyStr = document.createElement("h2");
-                qtyStr.classList.add("text-center", "text-light");
-                qtyStr.innerHTML = teddyQty;
-                item.appendChild(qtyStr);
+                    let teddyPrice = document.createElement("h2");
+                    teddyPrice.classList.add("text-center", "text-light");
+                    teddyPrice.innerHTML = teddy.price + "€";
+                    item.appendChild(teddyPrice);
 
-                let priceText = document.createElement("h2");
-                priceText.classList.add("text-center", "text-primary");
-                priceText.innerHTML = "Prix";
-                item.appendChild(priceText);
+                })
 
-                let teddyPrice = document.createElement("h2");
-                teddyPrice.classList.add("text-center", "text-light");
-                teddyPrice.innerHTML = teddy.price + "€";
-                item.appendChild(teddyPrice);
+                displayTotalPrice(teddyId, teddyQty);
 
-            })
+            }
 
         }else{
 
@@ -125,46 +131,25 @@ function displayCommandItems(teddy){
 
 };
 
-function displayTotalPrice(){
+function displayTotalPrice(id, qty) {
 
-    for(key in localStorage){
+    fetch("http://localhost:3000/api/teddies/" + id).then(response => response.json())
+    .then(function (response){
 
-        if(!localStorage.hasOwnProperty(key)){
+        let teddyPrice = response.price;
 
-            continue;
+        parseInt(teddyPrice);
 
-        };
+        calculatePrice += teddyPrice * qty;
 
-        if(key != "firstName" && key != "lastName"  && key != "address" && key != "city" && key != "email"){
+        totalPrice.innerHTML = calculatePrice + "€";
 
-            if(!localStorage.hasOwnProperty(key)){
+    })
+    .catch(function (response){
 
-                continue;
-    
-            };
+        console.log(response);
 
-            let value = JSON.parse(localStorage.getItem(key));
-
-            let teddyId = value[0];
-
-            console.log(teddyId, teddyOption, teddyQty);
-
-            fetch("http://localhost:3000/api/teddies/" + teddyId).then(response => response.json())
-            .then(function(teddy){
-
-                calculatePrice += parseInt(teddy.price);
-
-            })
-
-        }else{
-
-            console.log("Test failed");
-
-        };
-    
-    }
-
-    totalPrice.innerHTML = calculatePrice;
+    });
 
 };
 
@@ -184,19 +169,33 @@ clearButton.addEventListener("click", function(event){
 
 });
 
-//window.addEventListener("beforeunload", function(event){
-
-    //localStorage.clear();
-
-//});
-
 function displayTotalQty(){
 
     let qty = 0;
 
     if(localStorage.length > 0){
 
-        
+        let panier = JSON.parse(localStorage.getItem("panier"));
+
+        if(panier.length > 0){
+
+            qty = panier.length;
+
+            for(i in panier){
+
+                let item = panier[i];
+
+                let qtyPerItems = item[2];
+
+                parseInt(qty);
+
+                qty += qtyPerItems - 1; 
+
+            }
+
+            totalQty.innerHTML = qty;
+
+        }
 
     }else{
 
