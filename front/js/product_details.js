@@ -1,6 +1,8 @@
 let clearButton = document.getElementById("clearLocalStorage");
 let totalQty = document.getElementById("totalQty");
 
+let productContainer = document.getElementById("productContainer");
+
 let urlStr = window.location.href;
 let url = new URL(urlStr);
 let id = url.searchParams.get("id");

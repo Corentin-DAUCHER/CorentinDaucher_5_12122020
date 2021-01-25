@@ -9,7 +9,7 @@ const shopContainer = document.getElementById("shopContainer");
 
 let panier = [];
 
-if(localStorage.length == 0){
+if (localStorage.length == 0) {
 
     localStorage.setItem("panier", JSON.stringify(panier));
 
@@ -29,7 +29,7 @@ if (localStorage.length > 0) {
 
     if (panier.length > 0) {
 
-        for(i in panier){
+        for (i in panier) {
 
             let item = panier[i];
 
@@ -42,14 +42,14 @@ if (localStorage.length > 0) {
             parseInt(qty);
 
             displayCommand(id, teddyOption, qty, k);
-        
+
             displayTotalPrice(id, qty);
 
             displayTotalQty();
 
         }
 
-    }else{
+    } else {
 
         message.innerHTML = "VOTRE PANIER EST VIDE !";
         message.classList.add("text-center");
@@ -157,22 +157,22 @@ function displayCommand(id, teddyOption, qty, k) {
 function displayTotalPrice(id, qty) {
 
     fetch("http://localhost:3000/api/teddies/" + id).then(response => response.json())
-    .then(function (response){
+        .then(function (response) {
 
-        let teddyPrice = response.price;
+            let teddyPrice = response.price;
 
-        parseInt(teddyPrice);
+            parseInt(teddyPrice);
 
-        calculatePrice += teddyPrice * qty;
+            calculatePrice += teddyPrice * qty;
 
-        totalPrice.innerHTML = calculatePrice + "€";
+            totalPrice.innerHTML = calculatePrice + "€";
 
-    })
-    .catch(function (response){
+        })
+        .catch(function (response) {
 
-        console.log(response);
+            console.log(response);
 
-    });
+        });
 
 };
 
@@ -196,36 +196,56 @@ function deleteButtonListener(button) {
 
 shopForm.addEventListener("submit", function (event) {
 
+    let emailValue = shopForm[4].value;
+
     event.preventDefault();
 
-    let contact = getFormValue(shopForm);
+    if (ValidateEmail(emailValue)) {
 
-    let products = productList;
+        let contact = getFormValue(shopForm);
 
-    let objectRequest = JSON.stringify({
-        contact,
-        products
-    });
+        let products = productList;
 
-    fetch("http://localhost:3000/api/teddies/order", {
-        method: "POST",
-        body: objectRequest,
-        headers: { "Content-type": "application/json" }
-    }).then(response => response.json())
-        .then(function (response) {
-            localStorage.setItem("orderId", response.orderId);
-            localStorage.setItem("firstName", response.contact.firstName);
-            localStorage.setItem("lastName", response.contact.lastName);
-            localStorage.setItem("address", response.contact.address);
-            localStorage.setItem("city", response.contact.city);
-            localStorage.setItem("email", response.contact.email);
-            window.location.href = "/front/pages/commande.html";
-        })
-        .catch(function (response) {
-            console.log(response);
-        })
+        let objectRequest = JSON.stringify({
+            contact,
+            products
+        });
+
+        fetch("http://localhost:3000/api/teddies/order", {
+            method: "POST",
+            body: objectRequest,
+            headers: { "Content-type": "application/json" }
+        }).then(response => response.json())
+            .then(function (response) {
+                localStorage.setItem("orderId", response.orderId);
+                localStorage.setItem("firstName", response.contact.firstName);
+                localStorage.setItem("lastName", response.contact.lastName);
+                localStorage.setItem("address", response.contact.address);
+                localStorage.setItem("city", response.contact.city);
+                localStorage.setItem("email", response.contact.email);
+                window.location.href = "/front/pages/commande.html";
+            })
+            .catch(function (response) {
+                console.log(response);
+            })
+
+    }else{
+
+        alert("Champs email incorrect !");
+
+    }
 
 });
+
+function ValidateEmail(mail) 
+{
+ if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(shopForm[4].value))
+  {
+    return (true)
+  }
+    return (false)
+}
+
 
 function getFormValue(form) {
 
@@ -247,19 +267,19 @@ clearButton.addEventListener("click", function (event) {
 
 });
 
-function displayTotalQty(){
+function displayTotalQty() {
 
     let qty = 0;
 
-    if(localStorage.length > 0){
+    if (localStorage.length > 0) {
 
         let panier = JSON.parse(localStorage.getItem("panier"));
 
-        if(panier.length > 0){
+        if (panier.length > 0) {
 
             qty = panier.length;
 
-            for(i in panier){
+            for (i in panier) {
 
                 let item = panier[i];
 
@@ -267,7 +287,7 @@ function displayTotalQty(){
 
                 parseInt(qty);
 
-                qty += qtyPerItems - 1; 
+                qty += qtyPerItems - 1;
 
             }
 
@@ -275,7 +295,7 @@ function displayTotalQty(){
 
         }
 
-    }else{
+    } else {
 
         totalQty.innerHTML = qty;
 
